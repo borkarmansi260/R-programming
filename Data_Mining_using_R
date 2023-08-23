@@ -1,0 +1,43 @@
+
+rm(list=ls()) 
+gc() 
+
+setwd('C:/Users/CSUFTitan/Downloads')
+
+dat = read.csv('ToyotaCorolla_new.csv', head=T, stringsAsFactors=F, na.strings='') 
+
+
+dim(dat) 
+
+## To fetch the missing values
+missing_val.na = is.na(dat)
+col_prop_miss = colMeans(missing_val.na) 
+row_prop_miss = rowMeans(missing_val.na) 
+plot(col_prop_miss) 
+
+## To eliminate columns with Missing Values
+new_dat1 = dat[, col_prop_miss < .3] 
+new_dat1
+## To eliminate rowa with Missing Values
+new_dat2 = na.omit(new_dat1) 
+
+
+## DUMMY VARIABLES... 1.To check the frequency of categorical variables
+table(new_dat2$Color)
+
+# Combine categories and create dummy variables
+unq = which(new_dat2$Color %in% c('Beige', 'Violet', 'White', 'Yellow'))
+new_dat2$Color[unq] = 'Numerous'
+table(new_dat2$Color)
+
+library(fastDummies)
+new_dat3 = dummy_columns(new_dat2, select_columns = 'Color', remove_most_frequent_dummy = T)
+
+
+new_dat3$Color = NULL
+rm(dat, new_dat1, new_dat2); gc()
+save(new_dat3, file = 'cleaned_dat.rda')
+
+cor(new_dat3) 
+
+
